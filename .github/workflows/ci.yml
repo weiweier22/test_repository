@@ -21,6 +21,10 @@ jobs:
     name: Run Python Script # 任务名称 / Job name
     runs-on: ubuntu-latest  # 运行环境：最新的 Ubuntu / Run environment: latest Ubuntu
     
+    # 权限设置：仅授予必要的权限 / Permissions: Grant only necessary permissions
+    permissions:
+      contents: read  # 读取仓库内容 / Read repository contents
+    
     # 任务步骤 / Job steps
     steps:
       # 步骤 1: 检出代码 / Step 1: Checkout code
@@ -68,6 +72,10 @@ jobs:
   multi-version-test:
     name: Test on Multiple Python Versions / 多版本测试
     runs-on: ubuntu-latest
+    
+    # 权限设置：仅授予必要的权限 / Permissions: Grant only necessary permissions
+    permissions:
+      contents: read  # 读取仓库内容 / Read repository contents
     
     # 策略矩阵：在多个 Python 版本上运行
     # Strategy matrix: run on multiple Python versions
