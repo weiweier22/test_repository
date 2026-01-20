@@ -1,0 +1,98 @@
+# GitHub Actions 工作流示例 / GitHub Actions Workflow Example
+# 这个工作流演示了如何在 GitHub Actions 中运行 Python 代码
+# This workflow demonstrates how to run Python code in GitHub Actions
+
+name: CI - Python Test # 工作流名称 / Workflow name
+
+# 触发条件 / Trigger conditions
+# 当代码推送到主分支或创建拉取请求时触发
+# Triggers when code is pushed to main branch or a pull request is created
+on:
+  push:
+    branches: [ main, master ]  # 监听 main 和 master 分支 / Listen to main and master branches
+  pull_request:
+    branches: [ main, master ]  # 监听针对 main 和 master 的 PR / Listen to PRs targeting main and master
+  workflow_dispatch:  # 允许手动触发工作流 / Allow manual workflow trigger
+
+# 工作流中的任务 / Jobs in the workflow
+jobs:
+  # 第一个任务：测试 / First job: test
+  test:
+    name: Run Python Script # 任务名称 / Job name
+    runs-on: ubuntu-latest  # 运行环境：最新的 Ubuntu / Run environment: latest Ubuntu
+    
+    # 权限设置：仅授予必要的权限 / Permissions: Grant only necessary permissions
+    permissions:
+      contents: read  # 读取仓库内容 / Read repository contents
+    
+    # 任务步骤 / Job steps
+    steps:
+      # 步骤 1: 检出代码 / Step 1: Checkout code
+      # 使用官方的 checkout action 来获取仓库代码
+      # Use the official checkout action to get repository code
+      - name: Checkout code / 检出代码
+        uses: actions/checkout@v4
+      
+      # 步骤 2: 设置 Python 环境 / Step 2: Setup Python environment
+      # 配置 Python 3.11 运行环境
+      # Configure Python 3.11 runtime environment
+      - name: Set up Python / 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'  # 指定 Python 版本 / Specify Python version
+      
+      # 步骤 3: 显示 Python 版本 / Step 3: Display Python version
+      # 验证 Python 环境是否正确安装
+      # Verify that Python environment is correctly installed
+      - name: Display Python version / 显示 Python 版本
+        run: python --version
+      
+      # 步骤 4: 运行 Python 脚本 / Step 4: Run Python script
+      # 执行仓库中的 hello_world.py 脚本
+      # Execute the hello_world.py script in the repository
+      - name: Run hello_world.py / 运行 hello_world.py
+        run: python hello_world.py
+      
+      # 步骤 5: 测试导入模块 / Step 5: Test importing module
+      # 验证 Python 模块可以被正确导入和使用
+      # Verify that Python module can be imported and used correctly
+      - name: Test module import / 测试模块导入
+        run: |
+          python -c "from hello_world import greet, farewell; print(greet('GitHub Actions')); print(farewell('Test'))"
+      
+      # 步骤 6: 成功提示 / Step 6: Success message
+      # 显示所有测试通过的消息
+      # Display message that all tests passed
+      - name: Success / 成功
+        run: echo "✅ All tests passed! 所有测试通过！"
+
+  # 第二个任务：多版本测试 / Second job: multi-version test
+  # 演示如何在多个 Python 版本上进行测试
+  # Demonstrate how to test on multiple Python versions
+  multi-version-test:
+    name: Test on Multiple Python Versions / 多版本测试
+    runs-on: ubuntu-latest
+    
+    # 权限设置：仅授予必要的权限 / Permissions: Grant only necessary permissions
+    permissions:
+      contents: read  # 读取仓库内容 / Read repository contents
+    
+    # 策略矩阵：在多个 Python 版本上运行
+    # Strategy matrix: run on multiple Python versions
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+      - name: Checkout code / 检出代码
+        uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }} / 设置 Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Run script on Python ${{ matrix.python-version }} / 在 Python ${{ matrix.python-version }} 上运行脚本
+        run: |
+          echo "Testing on Python ${{ matrix.python-version }}"
+          python hello_world.py
